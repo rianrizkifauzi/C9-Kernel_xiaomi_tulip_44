@@ -38,8 +38,12 @@ ui_print " ";
 
 split_boot;
 
-# R1.1: SELinux enforcing (no permissive patch).
-# Boot + KSU verified working on R1.0-Test; now ship secure enforcing build.
+# R1.2: Force SELinux ENFORCING.
+# The tulip ROM/bootloader injects androidboot.selinux=permissive into the
+# boot cmdline (verified: ro.boot.selinux=permissive while CONFIG_CMDLINE has
+# no selinux token). Override it to enforcing so the kernel boots secure.
+ui_print "Forcing cmdline: androidboot.selinux=enforcing";
+patch_cmdline "androidboot.selinux" "androidboot.selinux=enforcing";
 
 flash_boot;
 ## end install
