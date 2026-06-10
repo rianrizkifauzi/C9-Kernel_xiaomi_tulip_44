@@ -29,7 +29,7 @@ ui_print "*  Codename: BKZ                      *";
 ui_print "*  Built by JorianPonomaref          *";
 ui_print "*  Base: Linux 4.4.x + KSUN           *";
 ui_print "*  Source: kucingoranye SDM660       *";
-ui_print "*  Mode: SELinux permissive (test)   *";
+ui_print "*  Mode: SELinux enforcing           *";
 ui_print "**************************************";
 ui_print " ";
 
@@ -38,10 +38,8 @@ ui_print " ";
 
 split_boot;
 
-# Patch kernel cmdline to force SELinux permissive
-# This bypasses fstab/sepolicy_vers.txt load issue on incompatible vendor partition
-ui_print "Patching cmdline: androidboot.selinux=permissive";
-patch_cmdline "androidboot.selinux" "androidboot.selinux=permissive";
+# R1.1: SELinux enforcing (no permissive patch).
+# Boot + KSU verified working on R1.0-Test; now ship secure enforcing build.
 
 flash_boot;
 ## end install

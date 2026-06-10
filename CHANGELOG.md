@@ -7,3 +7,8 @@
 - KernelSU-Next legacy, manual hook pre-patched, path_umount backport.
 - Toolchain Proton Clang, GNU ld (ld.lld bikin built-in.o kosong di 4.4).
 - AnyKernel3 + SELinux permissive (uji boot awal).
+
+## R1.1 (enforcing)
+- R1.0-Test TERBUKTI boot + KSU-Next Working di tulip (screenshot: 4.4.302-C9-BKZ-KSUN-R1.0-Test, Working 33129).
+- Buang patch cmdline androidboot.selinux=permissive → SELinux ENFORCING.
+- Build daily-usable + integrity-ready.
