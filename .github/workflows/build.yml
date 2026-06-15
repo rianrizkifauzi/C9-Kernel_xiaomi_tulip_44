@@ -97,6 +97,12 @@ on:
         default: 'false'
         type: choice
         options: ['true', 'false']
+      camera_variant:
+        description: 'Camera blob compatibility: aosp (LineageOS/AOSP old blobs) | miui_pie (MIUI Android 9 new blobs) | miui_q (MIUI Android 10 Q blobs)'
+        required: false
+        default: 'aosp'
+        type: choice
+        options: ['aosp', 'miui_pie', 'miui_q']
 
 env:
   TZ: Asia/Jakarta
@@ -817,6 +823,44 @@ jobs:
             echo "CONFIG_LOCALVERSION=\"-C9-${{ inputs.kernel_codename }}-KSUN-${{ inputs.kernel_relver }}\""
             echo "# CONFIG_LOCALVERSION_AUTO is not set"
           } >> "${DCFG_PATH}"
+
+          # === Camera blob compatibility (sdm660 old/new cam toggle) ===
+          # AOSP/Lineage HAL uses "old" blobs; MIUI uses "new" blobs.
+          # Mismatch => MIUI camera force close. These flags switch the
+          # in-kernel camera sensor ABI to match the ROM's camera HAL.
+          CAMVAR="${{ inputs.camera_variant }}"
+          echo "=== Camera variant: ${CAMVAR} ==="
+          case "${CAMVAR}" in
+            miui_pie)
+              {
+                echo ""
+                echo "# === MIUI Pie (Android 9) camera blobs ==="
+                echo "CONFIG_XIAOMI_NEW_CAMERA_BLOBS=y"
+                echo "CONFIG_PATCH_GCAM_FREEZE=y"
+                echo "# CONFIG_XIAOMI_MIUI_Q_CAMERA_BLOBS is not set"
+              } >> "${DCFG_PATH}"
+              echo "Applied MIUI Pie camera blobs (NEW_CAMERA_BLOBS=y)"
+              ;;
+            miui_q)
+              {
+                echo ""
+                echo "# === MIUI Q (Android 10) camera blobs ==="
+                echo "CONFIG_XIAOMI_NEW_CAMERA_BLOBS=y"
+                echo "CONFIG_XIAOMI_MIUI_Q_CAMERA_BLOBS=y"
+                echo "CONFIG_PATCH_GCAM_FREEZE=y"
+              } >> "${DCFG_PATH}"
+              echo "Applied MIUI Q camera blobs (NEW + MIUI_Q)"
+              ;;
+            *)
+              {
+                echo ""
+                echo "# === AOSP/Lineage camera blobs (default) ==="
+                echo "# CONFIG_XIAOMI_NEW_CAMERA_BLOBS is not set"
+                echo "# CONFIG_XIAOMI_MIUI_Q_CAMERA_BLOBS is not set"
+              } >> "${DCFG_PATH}"
+              echo "Applied AOSP/Lineage camera blobs (defaults, all off)"
+              ;;
+          esac
 
           if [ "${KSU_HOOK_MODE}" = "auto" ]; then
             echo "rsuntk/KernelSU - no hook config needed (auto-detected at compile time)"
